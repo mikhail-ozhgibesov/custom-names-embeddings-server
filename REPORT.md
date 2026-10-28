@@ -30,10 +30,15 @@ still pending; Docker build is configured but not yet exercised on this box.
 | Input | Source | Disposition |
 |---|---|---|
 | Reference architecture | `../labse-onnx-server` (Rust/axum/ort serving study) | Architecture inherited 1:1 (queue, micro-batching, backpressure, metrics, parity testing) |
-| Training repo snapshot | `/home/mike/src.zi` → `third_party/src` (gitignored) | `retrieval.models.conv_hybrid.CT4Encoder` + `QwenBpeTokenizer` used verbatim in export |
-| Checkpoint | `h016.zip` → `third_party/h016/best.pt` (gitignored) | step 84 000, config_json `t016-ct4`, 10 536 768 params (matches `model_stats.json`) |
-| Tokenizer | HF `Qwen/Qwen2.5-0.5B`, rev `060db64…` | Downloaded via `download_qwen`, **sha256-verified** against `qwen_meta.json` |
-| Eval reference | `h016/eval/*.json` | Aggregate metrics only (no raw vectors) → parity targets generated locally from torch |
+| Training repo snapshot | RND-5 training repo (git `f2f3758…`) | `retrieval.models.conv_hybrid.CT4Encoder` + `QwenBpeTokenizer` used verbatim in export |
+| Checkpoint | h016 `best.pt` (step 84 000) | config_json `t016-ct4`, 10 536 768 params (matches `model_stats.json`) |
+| Tokenizer | HF `Qwen/Qwen2.5-0.5B`, rev `060db64…` | **sha256-verified** against `qwen_meta.json` |
+| Eval reference | h016 eval aggregates (`retrieval_test.json` etc.) | Metrics only (no raw vectors) → parity targets generated locally from torch |
+
+> The original archives were session inputs only. The repo is now
+> self-sufficient: the minimal model sources + trimmed checkpoint live in
+> `model-src/`, and the built model dir in `model/` (git LFS) — see
+> `model-src/README.md`.
 
 ## 3. What exists now
 
@@ -168,10 +173,9 @@ flat; 25 716 requests / 45 004 items served with **0 errors, 0 rejects**.
 ## 7. Reproduction
 
 ```bash
-# inputs (once): third_party/{src, h016/best.pt} + tokenizer (sha256-checked)
-PYTHONPATH=src python -m src.retrieval.tokenizers.download_qwen   # inside third_party/
+git lfs pull                                            # model/ + model-src/ weights
 
-python scripts/build_model_dir.py --out ./model          # self-verifying export
+python scripts/build_model_dir.py --out ./model          # self-verifying export (from model-src/)
 python scripts/make_golden.py --out golden_ort           # Gate A golden
 cargo test --release --test parity                       # Gate A (build-failing)
 python scripts/gen_names.py 10000 names_10k.json

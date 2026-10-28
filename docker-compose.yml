@@ -28,8 +28,7 @@ services:
         limits:
           cpus: "${CT4_CPUS:-16}"
           memory: "${CT4_MEM:-4g}"
-    volumes:
-      # Self-contained model dir (model.onnx + tokenizer.json + meta.json),
-      # built by `python scripts/build_model_dir.py --out ./model`. Mounted at /model.
-      # Override the host path with CT4_MODEL_HOST.
-      - "${CT4_MODEL_HOST:-./model}:/model:ro"
+    # The image bakes the model dir at /model (COPY model in the Dockerfile),
+    # so no mount is needed. To serve a different model dir, bind-mount it:
+    # volumes:
+    #   - "${CT4_MODEL_HOST:-./model}:/model:ro"

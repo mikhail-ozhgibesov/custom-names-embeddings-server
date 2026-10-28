@@ -1,8 +1,6 @@
 target/
-model/
 golden_ort/
 reference_pt/
-third_party/
 .git/
 *.md
 *.zip

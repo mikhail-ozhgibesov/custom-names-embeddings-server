@@ -20,10 +20,11 @@ In-script verification (fails loudly):
   3. batch-invariance: embedding of a name alone == within a ragged batch,
      for both torch and ONNX (T-016 padding discipline).
 
-Inputs:
-  --src          dir with the training repo's `src/` package (default third_party/src)
-  --checkpoint   best.pt (default third_party/h016/best.pt)
-  --tokenizer    tokenizer.json (default third_party/models/tokenizers/qwen2.5-0.5b/tokenizer.json)
+Inputs (defaults below; all are vendored in this repo — no external archives
+needed):
+  --src          minimal training-repo subset `model-src/src` (CT4Encoder verbatim)
+  --checkpoint   `model-src/ct4_h016_state.pt` (state_dict + config_json + step)
+  --tokenizer    `model/tokenizer.json` (the pinned, sha256-checked Qwen copy)
   --out          output dir (default ./model)
 
 Produces: model.onnx, tokenizer.json, meta.json.
@@ -175,9 +176,11 @@ class CT4Export(nn.Module):
 
 def load_encoder(src_dir: str, ckpt_path: str, tok_path: str):
     global _AttentionBlock
-    # The training repo mixes `retrieval.*` and `src.retrieval.*` imports, so
-    # both the repo root (parent of src/) and src/ itself must be importable.
-    repo_root = os.path.dirname(os.path.abspath(src_dir))
+    # Vendored minimal package (model-src/src) — `retrieval.*` imports only;
+    # both the package root and its parent are importable for compatibility
+    # with a full training-repo layout.
+    src_dir = os.path.abspath(src_dir)
+    repo_root = os.path.dirname(src_dir)
     for p in (repo_root, src_dir):
         if p not in sys.path:
             sys.path.insert(0, p)
@@ -228,9 +231,9 @@ def maxdiff(a: np.ndarray, b: np.ndarray) -> float:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--src", default="third_party/src")
-    ap.add_argument("--checkpoint", default="third_party/h016/best.pt")
-    ap.add_argument("--tokenizer", default="third_party/models/tokenizers/qwen2.5-0.5b/tokenizer.json")
+    ap.add_argument("--src", default="model-src/src")
+    ap.add_argument("--checkpoint", default="model-src/ct4_h016_state.pt")
+    ap.add_argument("--tokenizer", default="model-src/tokenizer.json")
     ap.add_argument("--out", default="./model")
     args = ap.parse_args()
 

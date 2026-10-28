@@ -22,9 +22,9 @@ import numpy as np
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--src", default="third_party/src")
-    ap.add_argument("--checkpoint", default="third_party/h016/best.pt")
-    ap.add_argument("--tokenizer", default="third_party/models/tokenizers/qwen2.5-0.5b/tokenizer.json")
+    ap.add_argument("--src", default="model-src/src")
+    ap.add_argument("--checkpoint", default="model-src/ct4_h016_state.pt")
+    ap.add_argument("--tokenizer", default="model-src/tokenizer.json")
     ap.add_argument("--names", default="names_10k.json")
     ap.add_argument("--out", default="reference_pt")
     ap.add_argument("--batch", type=int, default=2048, help="eval_batch_size of the h016 run")

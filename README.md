@@ -70,36 +70,43 @@ Inference never touches the async executor. The native engine runs
 ## Quick start
 
 ```bash
-# 0. One-time inputs (gitignored) — training-repo snapshot, checkpoint, tokenizer:
-mkdir -p third_party && cd third_party
-unzip /path/to/src.zip                       # repo with src/
-unzip /path/to/h016.zip 'h016/best.pt'
-PYTHONPATH=src python -m src.retrieval.tokenizers.download_qwen   # tokenizer.json, sha256-checked
-cd ..
+# 1. Clone with model weights (git-lfs; ~131 MB of LFS objects):
+git clone git@github.com:mikhail-ozhgibesov/custom-names-embeddings-server.git
+cd custom-names-embeddings-server && git lfs pull        # if not auto-fetched
 
-# 1. Python env for model prep (the server itself needs none):
-python -m venv .venv && . .venv/bin/activate
-pip install -r scripts/requirements-model.txt
+# 2. Run the server (native engine, workers = physical cores, model included):
+cargo run --release
 
-# 2. Build the model dir (self-verifying: wrapper==encode, ONNX==torch,
-#    batch-invariance; emits model.onnx + weights.bin + manifest + tokenizer):
-python scripts/build_model_dir.py --out ./model
-
-# 3. Run the server (native engine, workers = physical cores):
-CT4_MODEL_DIR=./model cargo run --release
-
-# 4. Query:
+# 3. Query:
 curl localhost:8080/embeddings -H 'content-type: application/json' \
   -d '{"model":"ct4-h016","input":["Vladimir Putin","Владимир Путин","Иванов Иван"]}'
 curl localhost:8080/health
 curl localhost:8080/metrics
 ```
 
+Everything needed to run is in the repo:
+
+- `model/` — the serving model dir (git-LFS): `weights.bin` +
+  `weights_manifest.json` + `tokenizer.json` (native engine) and `model.onnx`
+  (ort reference engine).
+- `model-src/` — the complete **regeneration source**: the minimal vendored
+  training-repo subset (CT4Encoder + tokenizer wrapper, verbatim) and the
+  trimmed checkpoint `ct4_h016_state.pt` (state_dict only). Regenerating
+  `model/` is one self-verifying command and needs nothing else:
+
+```bash
+python -m venv .venv && . .venv/bin/activate    # python env for export only
+pip install -r scripts/requirements-model.txt
+python scripts/build_model_dir.py --out ./model # re-exports ONNX + weights.bin,
+                                                # verifies wrapper==encode,
+                                                # ONNX==torch, batch-invariance
+```
+
 ## Configuration (env)
 
 | Var | Meaning | Default |
 |---|---|---|
-| `CT4_MODEL_DIR` | dir with `weights.bin`, `weights_manifest.json`, `tokenizer.json` (+ `model.onnx` for the ort engine) | `./model` |
+| `CT4_MODEL_DIR` | dir with `weights.bin`, `weights_manifest.json`, `tokenizer.json` (+ `model.onnx` for the ort engine); baked at `/model` in the image | `./model` |
 | `CT4_ENGINE` | `native` or `ort` | `native` |
 | `CT4_MODEL_NAME` | name echoed in the OpenAI `model` field | `ct4-h016` |
 | `CT4_PORT` | HTTP port | 8080 |
@@ -157,21 +164,23 @@ errors** and flat 128 MB RSS; ~19× the torch reference throughput.
 
 ## Docker
 
-**Verified end-to-end** (built from this Dockerfile with `--pull --no-cache`,
-both engines run in-container, parity vs golden confirmed, throughput ≈ bare
-metal):
+**Verified end-to-end** (built with `--pull --no-cache`, both engines run
+in-container, parity vs golden confirmed, throughput ≈ bare metal). The model
+is **baked into the image** from the repo's LFS-tracked `model/` — no mounts,
+no downloads at build or run time (run `git lfs pull` first if your clone
+skipped LFS objects):
 
 ```bash
-python scripts/build_model_dir.py --out ./model        # if not already built
-CT4_MODEL_HOST=$PWD/model docker compose up --build    # serves on :8000, model at /model
+docker compose up --build          # serves on :8000, model included
 ```
 
-- Image: **77.1 MB**, digest-pinned multi-stage build (rust:1.96-trixie →
+- Image: **249 MB** total — 77 MB distroless/cc + binary + the ~87 MB baked
+  model dir; digest-pinned multi-stage build (rust:1.96-trixie →
   `distroless/cc-debian13`), ONNX Runtime pinned by the `ort` crate
-  (`=2.0.0-rc.12` → ORT 1.24, statically linked).
-- Default engine `native` needs only `weights.bin` + `weights_manifest.json` +
-  `tokenizer.json` from the mount; `model.onnx` is only needed for
-  `CT4_ENGINE=ort`.
+  (`=2.0.0-rc.12` → ORT 1.24, static). Bind-mount a model dir to keep images
+  lean across model updates.
+- To serve a different model, bind-mount another dir at `/model` (commented
+  `volumes` block in `docker-compose.yml`).
 - In-container checks: OpenAI interface battery, golden parity native
   max\|Δ\| **9.7e-8** / ort **1.2e-7**; B=64 batched **13.0k names/s** under
   `--cpus=4` (bare metal: 14.2k).

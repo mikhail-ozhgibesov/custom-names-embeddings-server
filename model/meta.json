@@ -1,0 +1,17 @@
+{
+  "model": "ct4-h016",
+  "arch": "ct4",
+  "source_repo_task": "T-016 / H-006 (h016)",
+  "checkpoint": "ct4_h016_state.pt",
+  "checkpoint_step": 84000,
+  "params": 10536768,
+  "pattern": "C-C-A-C-C-A",
+  "dim": 256,
+  "max_len": 64,
+  "pad_id": 151643,
+  "vocab_size": 151665,
+  "opset": 17,
+  "tokenizer_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+  "model_onnx_sha256": "a613877dfebf46df8917e9970b4c80d6b45ca66237a9938151869a45460ad7ae",
+  "weights_bin_sha256": "685f06f8c18a198dfa1353bce40b6ff9a37de07edb2fe96afde83b235b403034"
+}

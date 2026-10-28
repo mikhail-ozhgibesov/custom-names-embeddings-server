@@ -25,7 +25,10 @@ RUN cargo build --release --bin custom-names-embeddings-server \
 
 FROM gcr.io/distroless/cc-debian13@sha256:a017e74bd2a12d98342dbecd33d121d2b160415ed777573dc1808969e989d94d
 COPY --from=builder /build/target/release/custom-names-embeddings-server /usr/local/bin/custom-names-embeddings-server
-# Defaults; overridden by compose/env. Model is mounted at /model at runtime.
+# Model baked in at build time from the repo's LFS-tracked model/ dir
+# (native engine: weights.bin + manifest + tokenizer; ort engine: model.onnx).
+# Serve a different model by bind-mounting another dir at /model.
+COPY model /model
 ENV CT4_PORT=8080 \
     CT4_MODEL_DIR=/model
 EXPOSE 8080

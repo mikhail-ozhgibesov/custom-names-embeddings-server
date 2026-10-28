@@ -1,0 +1,382 @@
+{
+  "format": 1,
+  "provenance": {
+    "checkpoint_step": 84000,
+    "model_onnx_sha256": "a613877dfebf46df8917e9970b4c80d6b45ca66237a9938151869a45460ad7ae",
+    "weights_bin_sha256": "685f06f8c18a198dfa1353bce40b6ff9a37de07edb2fe96afde83b235b403034"
+  },
+  "dims": {
+    "vocab": 151665,
+    "d_token": 64,
+    "h": 256,
+    "heads": 4,
+    "head_dim": 64,
+    "max_len": 64,
+    "dim": 256
+  },
+  "pattern": [
+    "C",
+    "C",
+    "A",
+    "C",
+    "C",
+    "A"
+  ],
+  "blocks": [
+    {
+      "index": 0,
+      "kind": "conv",
+      "kernel": 5
+    },
+    {
+      "index": 1,
+      "kind": "conv",
+      "kernel": 5
+    },
+    {
+      "index": 2,
+      "kind": "att",
+      "heads": 4
+    },
+    {
+      "index": 3,
+      "kind": "conv",
+      "kernel": 5
+    },
+    {
+      "index": 4,
+      "kind": "conv",
+      "kernel": 5
+    },
+    {
+      "index": 5,
+      "kind": "att",
+      "heads": 4
+    }
+  ],
+  "tensors": [
+    {
+      "name": "tok_emb",
+      "offset": 0,
+      "numel": 9706560,
+      "shape": [
+        151665,
+        64
+      ],
+      "layout": "[V,64] row-major (gather rows)"
+    },
+    {
+      "name": "proj_w",
+      "offset": 9706560,
+      "numel": 16384,
+      "shape": [
+        64,
+        256
+      ],
+      "layout": "[64,256] = W^T (sgemm B)"
+    },
+    {
+      "name": "proj_b",
+      "offset": 9722944,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "pos_emb",
+      "offset": 9723200,
+      "numel": 16384,
+      "shape": [
+        64,
+        256
+      ],
+      "layout": "[64,256] rows by position"
+    },
+    {
+      "name": "blk0.norm_w",
+      "offset": 9739584,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk0.dw_w",
+      "offset": 9739840,
+      "numel": 1280,
+      "shape": [
+        5,
+        256
+      ],
+      "layout": "[k=5,C] k-major (SIMD over channels)"
+    },
+    {
+      "name": "blk0.dw_b",
+      "offset": 9741120,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk0.pw_w",
+      "offset": 9741376,
+      "numel": 65536,
+      "shape": [
+        256,
+        256
+      ],
+      "layout": "[256,256] = W^T (sgemm B)"
+    },
+    {
+      "name": "blk0.pw_b",
+      "offset": 9806912,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk1.norm_w",
+      "offset": 9807168,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk1.dw_w",
+      "offset": 9807424,
+      "numel": 1280,
+      "shape": [
+        5,
+        256
+      ],
+      "layout": "[k=5,C] k-major (SIMD over channels)"
+    },
+    {
+      "name": "blk1.dw_b",
+      "offset": 9808704,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk1.pw_w",
+      "offset": 9808960,
+      "numel": 65536,
+      "shape": [
+        256,
+        256
+      ],
+      "layout": "[256,256] = W^T (sgemm B)"
+    },
+    {
+      "name": "blk1.pw_b",
+      "offset": 9874496,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk2.norm_w",
+      "offset": 9874752,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk2.qkv_w",
+      "offset": 9875008,
+      "numel": 196608,
+      "shape": [
+        256,
+        768
+      ],
+      "layout": "[256,768] = W^T"
+    },
+    {
+      "name": "blk2.qkv_b",
+      "offset": 10071616,
+      "numel": 768,
+      "shape": [
+        768
+      ],
+      "layout": "[768]"
+    },
+    {
+      "name": "blk2.out_w",
+      "offset": 10072384,
+      "numel": 65536,
+      "shape": [
+        256,
+        256
+      ],
+      "layout": "[256,256] = W^T"
+    },
+    {
+      "name": "blk2.out_b",
+      "offset": 10137920,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk3.norm_w",
+      "offset": 10138176,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk3.dw_w",
+      "offset": 10138432,
+      "numel": 1280,
+      "shape": [
+        5,
+        256
+      ],
+      "layout": "[k=5,C] k-major (SIMD over channels)"
+    },
+    {
+      "name": "blk3.dw_b",
+      "offset": 10139712,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk3.pw_w",
+      "offset": 10139968,
+      "numel": 65536,
+      "shape": [
+        256,
+        256
+      ],
+      "layout": "[256,256] = W^T (sgemm B)"
+    },
+    {
+      "name": "blk3.pw_b",
+      "offset": 10205504,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk4.norm_w",
+      "offset": 10205760,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk4.dw_w",
+      "offset": 10206016,
+      "numel": 1280,
+      "shape": [
+        5,
+        256
+      ],
+      "layout": "[k=5,C] k-major (SIMD over channels)"
+    },
+    {
+      "name": "blk4.dw_b",
+      "offset": 10207296,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk4.pw_w",
+      "offset": 10207552,
+      "numel": 65536,
+      "shape": [
+        256,
+        256
+      ],
+      "layout": "[256,256] = W^T (sgemm B)"
+    },
+    {
+      "name": "blk4.pw_b",
+      "offset": 10273088,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk5.norm_w",
+      "offset": 10273344,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    },
+    {
+      "name": "blk5.qkv_w",
+      "offset": 10273600,
+      "numel": 196608,
+      "shape": [
+        256,
+        768
+      ],
+      "layout": "[256,768] = W^T"
+    },
+    {
+      "name": "blk5.qkv_b",
+      "offset": 10470208,
+      "numel": 768,
+      "shape": [
+        768
+      ],
+      "layout": "[768]"
+    },
+    {
+      "name": "blk5.out_w",
+      "offset": 10470976,
+      "numel": 65536,
+      "shape": [
+        256,
+        256
+      ],
+      "layout": "[256,256] = W^T"
+    },
+    {
+      "name": "blk5.out_b",
+      "offset": 10536512,
+      "numel": 256,
+      "shape": [
+        256
+      ],
+      "layout": "[256]"
+    }
+  ],
+  "param_total": 10536768,
+  "dtype": "f32-le"
+}

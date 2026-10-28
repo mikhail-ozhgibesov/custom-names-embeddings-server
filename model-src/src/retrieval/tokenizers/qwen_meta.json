@@ -1,0 +1,8 @@
+{
+  "repo_id": "Qwen/Qwen2.5-0.5B",
+  "revision": "060db6499f32faf8b98477b0a26969ef7d8b9987",
+  "sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+  "local_name": "qwen2.5-0.5b",
+  "pad_token": "<|endoftext|>",
+  "fixed_on": "2026-10-25"
+}
