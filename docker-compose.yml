@@ -1,0 +1,35 @@
+# ct4-h016 embedding server (native Rust forward + ONNX Runtime reference).
+# Env-driven with a fixed container_name (so `docker stats` samplers and ops
+# tooling can find it); inference threads from $CT4_THREADS. One shared
+# Arc<Weights> copy ⇒ RAM is flat; CT4 is ~42 MB of fp32 weights, so the
+# 4 GiB default leaves ample headroom (tune to your envelope).
+services:
+  ct4:
+    image: ${CT4_IMAGE:-custom-names-embeddings-server:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${CT4_CONTAINER:-ct4_server}
+    environment:
+      CT4_MODEL_DIR: /model
+      CT4_MODEL_NAME: ${CT4_MODEL_NAME:-ct4-h016}
+      CT4_PORT: "8000"
+      CT4_ORT_INTRA_THREADS: ${CT4_THREADS:-16}
+      CT4_ORT_INTER_THREADS: "1"
+      CT4_MAX_BATCH: ${CT4_MAX_BATCH:-32}
+      CT4_BATCH_TIMEOUT_MS: ${CT4_BATCH_TIMEOUT_MS:-0}
+      CT4_QUEUE_CAPACITY: ${CT4_QUEUE_CAPACITY:-1024}
+      CT4_MAX_SEQ_LEN: "64"
+      CT4_WORKERS: "1"
+    ports:
+      - "${CT4_HOST_PORT:-8000}:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: "${CT4_CPUS:-16}"
+          memory: "${CT4_MEM:-4g}"
+    volumes:
+      # Self-contained model dir (model.onnx + tokenizer.json + meta.json),
+      # built by `python scripts/build_model_dir.py --out ./model`. Mounted at /model.
+      # Override the host path with CT4_MODEL_HOST.
+      - "${CT4_MODEL_HOST:-./model}:/model:ro"

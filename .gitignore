@@ -1,0 +1,16 @@
+/target
+__pycache__/
+*.pyc
+# Generated reference vector sets (regenerate via scripts/make_*.py)
+/golden_ort
+/reference_pt
+# Assembled model dir (built by scripts/build_model_dir.py)
+/model
+# Training-repo snapshot + checkpoint + downloaded tokenizer (rebuild: see README)
+/third_party
+# Local model archives
+*.zip
+*.log
+.venv/
+bench_results.json
+names_*.json

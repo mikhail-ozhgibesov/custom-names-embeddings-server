@@ -1,0 +1,11 @@
+target/
+model/
+golden_ort/
+reference_pt/
+third_party/
+.git/
+*.md
+*.zip
+.venv/
+names_*.json
+bench_results.json
